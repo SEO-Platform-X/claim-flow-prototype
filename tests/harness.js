@@ -34,13 +34,13 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   }
   // D1 tabs
   dom.window.__go("D1"); await sleep(80);
-  for (const tab of ["Feed","Inbox","Tools","Profile"]) {
+  for (const tab of ["My page","This week","Inbox","Today"]) {
     const btns = [...root().querySelectorAll("button")].filter(b => (b.textContent||"").includes(tab));
     if (!btns.length) { fail++; console.log("FAIL D1 tab btn missing:", tab); continue; }
     btns[btns.length-1].dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
     await sleep(80);
     const t = root().textContent || "";
-    const need = tab === "Tools" ? "Make this happen" : tab === "Inbox" ? "Reach out" : tab === "Feed" ? "Santa Monica" : "Known for";
+    const need = tab === "This week" ? "Sources confirming you" : tab === "Inbox" ? "Reach out" : tab === "My page" ? "Known for" : "Ocean Glow holds 81";
     if (!t.includes(need)) { fail++; console.log("FAIL D1 tab", tab, "marker missing:", need); }
     else console.log("ok   D1 tab", tab);
   }
