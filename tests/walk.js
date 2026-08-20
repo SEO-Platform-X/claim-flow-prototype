@@ -62,17 +62,31 @@ const at = (exp) => {
   at("PW");
   fill(0, "password123"); await sleep(60); click("Save & open my dashboard"); await sleep(80); at("D1");
   // ---- purchase path ----
-  dom.window.__go("P1"); await sleep(80);
-  click("Choose GMB"); await sleep(80); at("C1");
+  // buy path: Today task → gate → This week → Start → confirm → C1
+  click("Fix it"); await sleep(80);
+  click("See how we fix it"); await sleep(100);
+  const tl = root().textContent;
+  if (!tl.includes("Sources confirming you")) { fails++; console.log("FAIL week chart missing"); } else console.log("ok   gate landed on This week + chart");
+  click("Start →"); await sleep(80);
+  click("Start Get found"); await sleep(80); at("C1");
   const cbtn = [...root().querySelectorAll("button")].find(b => (b.textContent||"").includes("Google"));
   if (cbtn) { cbtn.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true })); await sleep(2800); }
   at("D1");
-  // paid effects: inbox unlocked, tools ON badges
+  // tier-1 effects: inbox must STILL be locked (needs tier 2)
   click("Inbox"); await sleep(80);
   const t = root().textContent;
-  if (t.includes("🔒 Reach out")) { fails++; console.log("FAIL inbox still locked after GMB purchase"); } else console.log("ok   inbox unlocked after purchase");
-  click("Tools"); await sleep(80);
+  if (!t.includes("🔒 Reach out")) { fails++; console.log("FAIL inbox should still be locked at tier 1"); } else console.log("ok   inbox correctly locked at tier 1");
+  // upgrade path: locked tier-2 row in week → buy gate → C1 → inbox opens
+  click("This week"); await sleep(80);
+  click("$32/day"); await sleep(80);
+  click("Start Get recommended"); await sleep(120); at("D1"); // already connected, C1 skipped
+  click("Inbox"); await sleep(80);
+  const tU = root().textContent;
+  if (tU.includes("🔒 Reach out")) { fails++; console.log("FAIL inbox still locked after tier-2 upgrade"); } else console.log("ok   inbox unlocked at tier 2");
+  click("This week"); await sleep(80);
   const t2 = root().textContent;
-  if (!t2.includes("ON")) { fails++; console.log("FAIL tools shows no ON badge after purchase"); } else console.log("ok   tools shows ON");
+  if (!t2.includes("✓ done")) { fails++; console.log("FAIL week shows no done items after purchase"); } else console.log("ok   week shows done items");
+  click("Today"); await sleep(80);
+  if (!root().textContent.includes("Yelp hours fixed")) { fails++; console.log("FAIL today card did not flip to done"); } else console.log("ok   today card flipped to done");
   console.log(fails === 0 ? "GOLDEN PATH CLEAN" : fails + " WALK FAILURES");
 })().catch(e => { console.log("WALK ERROR:", e.message, "at step", dom.window.__step); process.exit(1); });
